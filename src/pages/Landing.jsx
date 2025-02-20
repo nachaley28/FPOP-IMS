@@ -63,7 +63,7 @@ const GreetingBox = styled.div`
 const LoginBox = styled.div`
     max-width: 500px;
     width:50%;
-    height: 350px;
+    height: auto;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 20px;
@@ -87,6 +87,7 @@ const LoginBox = styled.div`
 
     input {
         width: 90%;
+        height:30px;
         padding: 10px;
         border: 2px solid #002d62;
         border-radius: 10px;
@@ -94,7 +95,7 @@ const LoginBox = styled.div`
         background: rgba(255, 255, 255, 0.2);
         color: #002d62;
         outline: none;
-        margin-bottom: 8px;
+        margin-bottom: 15px;
 
         &::placeholder {
             color: #002d62;
@@ -147,7 +148,15 @@ function LandingPage() {
     function HomeNavigate() {
         navigate('/home');
     }
+    const [email, setEmail] = useState(""); 
+    const [password, setPassword] = useState(""); 
     const [showPassword, setShowPassword] = useState(false);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log("Email:", email);
+        console.log("Password:", password);
+      };
 
     return (
         <LandingContainer>
@@ -163,10 +172,11 @@ function LandingPage() {
                 <LoginBox>
                     <h2>WELCOME</h2>
                     <p>LOG IN TO CONTINUE</p>
-                    <form id='login'>
-                        <input type="email"  name = "email" placeholder="Email" required />
+                    <form id='login' onSubmit={handleSubmit}>
+                
+                        <input type="email"  name = "email"  value = {email} onChange={(e) =>setEmail(e.target.value)} placeholder="Email" required />
                         <div style={{ position: 'relative' }}>
-                            <input type={showPassword ? 'text' : 'password'} name = "password" placeholder="Password"required/>
+                            <input type={showPassword ? 'text' : 'password'} name = "password" value={password} onChange={(e) =>setPassword(e.target.value)} placeholder="Password"required/>
                             <PasswordToggle onClick={() => setShowPassword(!showPassword)}>
                                 {showPassword ? '🙈' : '👁'}
                             </PasswordToggle>

@@ -1,22 +1,16 @@
-import React from 'react';
-import { FaUser, FaBell,FaArrowDown,FaArrowUp,FaHistory } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-
-
-const products = [
-  { id: 1, name: "Condom", category: "Contraceptive", stock: 15, status: "Low Stock" },
-  { id: 2, name: "Pills", category: "Contraceptives", stock: 30, status: "Low Stock" },
-  { id: 3, name: "Gloves", category: "Medical Supplies", stock: 20, status: "Low Stock" },
-  { id: 4, name: "Facemask", category: "Medical Supplies", stock: 50, status: "Good" },
-];
+import { FaHome, FaBoxOpen, FaBox, FaExchangeAlt, FaClipboardCheck, FaPowerOff,
+         FaBell,FaWarehouse} from "react-icons/fa";
 
 
 const Product = styled.div`
- display: flex;
+  display: flex;
   align-items: center;
   flex-direction: column;
   gap: 0;
-  background-image: url(/img/7.png);
+  background-image: url(/img/14.png);
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
@@ -24,19 +18,14 @@ const Product = styled.div`
   width: 100vw;
   height: 100vh;
   overflow: auto;
-  scrollbar-width: none; 
+  scrollbar-width: none;
   -ms-overflow-style: none;  
   font-family: 'Poppins', sans-serif;
   margin: 0;
- 
-`;
-const Logo = styled.img`
-  width: 110px;
-  margin-right: 20px;
+  padding: 0;
 `;
 
 const Topbar = styled.div`
-  width: 100%;
   display: flex;
   align-items: center;
   padding: 10px 15px;
@@ -46,21 +35,24 @@ const Topbar = styled.div`
   justify-content: space-between;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  -webkit-appearance: none; 
-  -moz-appearance: none;    
-  appearance: none;         
-  overflow: auto; 
-  scrollbar-width: none; 
-  -ms-overflow-style: none;  
   height: fit-content;
-  top: 0;
-  left: 0;
+`;
+
+const Logo = styled.img`
+  width: 110px;
+  margin-right: 20px;
+`;
+const UserImg = styled.img`
+  width: 50px;
+  height:50px;
+  margin-right: 10px;
+  border-radius:180px;
 `;
 
 const Navigation = styled.div`
   display: flex;
   gap: 20px;
- margin-right: 20px;
+  margin-right: 20px;
 `;
 
 const Sidebar = styled.div`
@@ -84,31 +76,34 @@ const SidebarList = styled.ul`
 
 const SidebarItem = styled.li`
   width: 90%;
-  padding: 5px;
   text-align: left;
   transition: 0.3s ease;
   border-radius: 15px;
-  margin-left: 10px;
-  margin-top: 5px;
-
-  &.active {
-    border: none
-    color: aliceblue;
-  }
-
-  &:hover {
-    background-color:none
-  }
+  margin: 5px 0 5px 40px;
+  font-size: 18px;
+  font-family: Times;
 `;
 
 const SidebarLink = styled.a`
-  color: #1E40AF;
-  text-decoration: none;
+  color: black;
+  display:flex;
+  color: #333;
+  font-size: 18px;
+  font-weight: bold;
+  margin-left: 20px;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+
+
+`;
+const SidebarOut = styled.a`
+  color: black;
   display: flex;
-  align-items: center;
-  font-weight: 500;
-  font-size:20px;
-  font-family:Times;
+  color: #333;
+  font-size: 18px;
+  font-weight: bold;
+  margin-left: 5px;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  margin-top:250px;
 `;
 
 const Icon = styled.span`
@@ -117,226 +112,286 @@ const Icon = styled.span`
 `;
 
 const ProductContainer = styled.div`
-  margin-left: 250px;
-  width: calc(100% - 250px);
   margin-top: 10px;
-  box-sizing: border-box;
-  position: relative;
-`;
-
-const ProductTable = styled.table`
-  margin-left:70px;
-  width: 90%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  font-family: 'Poppins', sans-serif;
-  
- 
-
-  th, td {
-    padding: 12px;
-    text-align: left;
-    border:2px solid black;
-    text-align:center;
-  }
-
-  th {
-    background-color: #7CB9E8;
-    color:  #1E40AF;
-  }
-
-  td {
-    background-color: #F9FAFB;
-    color:black;
-  }
-
-  tr:nth-child(even) td {
-    background-color:rgb(84, 224, 239);
-  }
-
-  tr:hover {
-    background-color: #D1D5DB;
-  }
-`;
-const HistoryLink = styled.a`
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: orange;
-  font-size: 18px;
+  font-family: 'Arial', sans-serif;
   padding: 10px;
-  transition: color 0.3s ease;
-  float:left;
-  background-color: transparent;
-  border:2px solid orange;
-  margin-right:20px;
-  font-weight:bold;
-
-  
-
-  &:hover {
-    color: orange;
-  }
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  width: 100%;
+  margin-left: 250px;
 `;
-const StockOut = styled.a`
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: red;
-  font-size: 18px;
-  padding: 5px;
-  transition: color 0.3s ease;
-  float:left;
-  background-color:transparent;
-  border:2px solid red;
-  margin-right:20px;
-  font-weight:bold;
-  margin-bottom:10px;
-  
 
-  &:hover {
-    color: red;
-  }
-`;
-const StockIn = styled.a`
-  margin-left:20px;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: green;
-  border:2px solid green;
-  font-size: 18px;
-  padding: 5px;
-  transition: color 0.3s ease;
-  float:left;
-  background-color: transparent;
-  border:2px solid green;
-  margin-right:20px;
-  font-weight:bold;
-  margin-bottom:10px;s
-  
-
-  &:hover {
-    color: green;
-  }
-`;
-const SearchContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 5px;
+const Header = styled.div`
+  text-align: left;
   margin-bottom: 10px;
-  float:right;
-  margin-right:20px;
-`;
-
-const SearchInput = styled.input`
   padding: 15px;
-  font-size: 16px;
-  width: 400px;
-  border: 2px solid #1E40AF;
-  border-radius: 4px;
-  margin-right: 10px;
-  background-color:white;
-  color:black;
-  
-   &::placeholder {
-    font-size: 20px;
-    background-color:white;
-    font-family: 'Times New Roman', Times, serif;
-  }
-  
-
-  &:focus {
-    outline: none;
-    border-color: #4B9CD3;
-  }
+  border-radius: 8px;
+  font-weight: bold;
+  color: #002d62;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 `;
 
-const SearchButton = styled.button`
-  padding: 10px 15px;
-  font-size: 16px;
-  border: none;
-  background-color: #1E40AF;
-  color: white;
+const Title = styled.h1`
+  font-size: 2rem;
+  margin: 0;
+`;
+
+const TableContainer = styled.div`
+  overflow-x: auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid black;
+`;
+
+const TableHead = styled.thead`
+  background-color: #7CB9E8;
+`;
+
+const TableRow = styled.tr`
+  border-bottom: 1px solid #ddd;
+`;
+
+const TableHeader = styled.th`
+  padding: 10px;
+  text-align: center;
+  color: black;
+  border: 1px solid black;
+`;
+
+const TableCell = styled.td`
+  padding: 10px;
+  text-align: center;
+  color: black;
+  border: 1px solid black;
+`;
+
+const StatusBlue = styled.span`
+  color: blue;
+  font-weight: bold;
+`;
+
+const StatusRed = styled.span`
+  color: red;
+  font-weight: bold;
+`;
+
+const StatusGreen = styled.span`
+  color: green;
+  font-weight: bold;
+`;
+
+const Pagination = styled.div`
+  margin-top: 20px;
+  text-align: center;
+`;
+
+const PageButton = styled.button`
+  margin: 0 5px;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
+  color: black;
+  background-color: ${(props) => (props.active ? 'lightgray' : 'white')};
+`;
+
+const ActionButton = styled.button`
+  padding: 5px 10px;
+  margin: 0 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  ${(props) =>
+    props.variant === 'edit'
+      ? `background-color: #4CAF50;`
+      : `background-color: #f44336;`}
 
   &:hover {
-    background-color: #4B9CD3;
-    color: #1E40AF; 
+    opacity: 0.9;
   }
 `;
 
+let products = [
+  { id: 1, name: 'Aspirin', category: 'Pain Reliever', price: 12.99, inStock: 100 },
+  { id: 2, name: 'Bandages', category: 'First Aid', price: 5.49, inStock: 200 },
+  { id: 3, name: 'Thermometer', category: 'Medical Equipment', price: 15.99, inStock: 50 },
+  { id: 4, name: 'Cough Syrup', category: 'Cold & Cough', price: 8.99, inStock: 150 },
+  { id: 5, name: 'Antiseptic', category: 'First Aid', price: 7.49, inStock: 80 },
+];
 
-function Products(){
+
+export const getProducts = () => products;
+
+
+export const stockIn = (productId, amount) => {
+  products = products.map((product) =>
+    product.id === productId
+      ? { ...product, inStock: product.inStock + amount }
+      : product
+  );
+};
+
+export const stockOut = (productId, amount) => {
+  products = products.map((product) =>
+    product.id === productId
+      ? { ...product, inStock: product.inStock - amount }
+      : product
+  );
+};
+
+function Products() {
+   const navigate = useNavigate();
+        function HomeNavigate() {
+            navigate('/home');
+        }
+        function ProductNavigate() {
+            navigate('/products');
+        }
+        function StockInNavigate() {
+          navigate('/stockin');
+        }
+        function StockOutNavigate() {
+          navigate('/stockout');
+        }
+        function TransferNavigate() {
+          navigate('/transfers');
+        }
+        function StockAuditNavigate() {
+          navigate('/stockaudit');
+        }
+  const [LocalProduct, setLocalProducts] = useState([]);
+  const [amount, setAmount] = useState(0);
+
+ 
+
+  useEffect(() => {
+    setLocalProducts(getProducts());
+  }, []);
+
+  const handleStockOut = (productId) => {
+    stockOut(productId, amount); 
+    setLocalProducts(getProducts());
+    navigate('/stockout');
+  };
+
+  const handleStockIn = (productId) => {
+    stockIn(productId, amount);  
+    setLocalProducts(getProducts());  
+    navigate('/stockin');
+  };
+
+  const handleAmountChange = (e) => {
+    setAmount(Number(e.target.value));  
+  };
+
   return (
     <Product>
       <Topbar>
         <Logo src="/img/fpop-logo.png" alt="Logo" />
         <Navigation>
+          
           <a href="#">
-            <span><FaBell size={40} color="orange" /></span>
-          </a>
-          <a href="#">
-            <span><FaUser size={40} color="black" /></span>
+           <UserImg src="/img/N.jpg" alt="" />
           </a>
         </Navigation>
       </Topbar>
 
-      <Sidebar>
-        <SidebarList>
-          <SidebarItem>
-            <SidebarLink href="/home">
-              <Icon>&#128202;</Icon> DASHBOARD
-            </SidebarLink>
-          </SidebarItem>
-          <SidebarItem className="active">
-            <SidebarLink href="#">
-              <Icon>&#128230;</Icon> PRODUCTS
-            </SidebarLink>
-          </SidebarItem>
-        </SidebarList>
-      </Sidebar>
-
+       <Sidebar>
+                <SidebarList>
+                 <SidebarLink onClick={HomeNavigate}>
+                  <Icon><FaHome color="black" /></Icon> Dashboard
+                    </SidebarLink>
+                   <SidebarLink onClick={ProductNavigate}>
+                      <Icon><FaWarehouse color="yellow" /></Icon> Stock Management
+                    </SidebarLink>
+                    <SidebarItem>
+                    <SidebarLink  onClick={StockInNavigate}>
+                     <Icon><FaBoxOpen color="green" size={20} /></Icon> Stock In
+                    </SidebarLink>
+                    </SidebarItem>
+                    <SidebarItem>
+                    <SidebarLink  onClick={StockOutNavigate}>
+                     <Icon><FaBox color="red" size={20}/></Icon> Stock Out
+                      </SidebarLink>
+                      </SidebarItem>
+                      <SidebarItem>
+                      <SidebarLink onClick={TransferNavigate}>
+                      <Icon><FaExchangeAlt color="blue" size={20} /></Icon> Stock Transfers
+                      </SidebarLink>
+                     </SidebarItem>
+                      <SidebarItem>
+                     <SidebarLink onClick={StockAuditNavigate}>
+                      <Icon><FaClipboardCheck color="purple" size={20}/></Icon> Stock Audit
+                      </SidebarLink>
+                      </SidebarItem>  
+                       <SidebarItem>
+                          <SidebarOut href="/">
+                           <Icon>< FaPowerOff color="red" size={30}/></Icon> Log Out
+                           </SidebarOut>
+                        </SidebarItem>        
+                 </SidebarList>
+        </Sidebar>
+      
 
       <ProductContainer>
-        <StockIn href=""><span> <FaArrowDown size={30} color="green" /></span> STOCK IN</StockIn>
-        <StockOut href=""><span><FaArrowUp size={30} color="red" /></span> STOCK OUT</StockOut>
-        <HistoryLink href="#"><FaHistory size={30} color="orange" />HISTORY</HistoryLink>
-
-        <SearchContainer>
-          <SearchInput
-            type="text" placeholder="Search..."/>
-          <SearchButton>Search</SearchButton>
-        </SearchContainer>
-
-        <ProductTable>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Product Name</th>
-              <th>Category</th>
-              <th>Stock</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.id}>
-                <td>{product.id}</td>
-                <td>{product.name}</td>
-                <td>{product.category}</td>
-                <td>{product.stock}</td>
-                <td>{product.status}</td>
-              </tr>
-            ))}
-          </tbody>
-      
-
-        </ProductTable>
+        <Header>
+          <Title>Product List</Title>
+        </Header>
         
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeader>Product Name</TableHeader>
+                <TableHeader>Category</TableHeader>
+                <TableHeader>Price</TableHeader>
+                <TableHeader>Quantity</TableHeader>
+                <TableHeader>Status</TableHeader>
+                <TableHeader>Action</TableHeader>
+              </TableRow>
+            </TableHead>
+            <tbody>
+              {LocalProduct.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell>{product.name}</TableCell>
+                  <TableCell>{product.category}</TableCell>
+                  <TableCell>{product.price}</TableCell>
+                  <TableCell>{product.inStock}</TableCell>
+                  <TableCell>
+                  {product.inStock <= 50 ? (
+                      <StatusRed>Out of Stock</StatusRed>
+                    ) : product.inStock > 100 ? (
+                      <StatusBlue>Over Stock</StatusBlue>
+                    ) : product.inStock <= 100 ? (
+                      <StatusGreen>In Stock</StatusGreen>
+                    ) : null}
+
+                  </TableCell>
+                  <TableCell>
+                    <ActionButton variant="edit" onClick={() => handleStockIn(product.id)}>In</ActionButton>
+                    <ActionButton onClick={() => handleStockOut(product.id)}>Out</ActionButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </tbody>
+          </Table>
+        </TableContainer>
+
+        <Pagination>
+          <PageButton>Prev</PageButton>
+          <PageButton active>1</PageButton>
+          <PageButton>Next</PageButton>
+        </Pagination>
       </ProductContainer>
-      
     </Product>
   );
 }
